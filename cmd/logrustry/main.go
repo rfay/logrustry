@@ -7,7 +7,7 @@ import (
 
 func init() {
 	// Log as JSON instead of the default ASCII formatter.
-	log.SetFormatter(&log.JSONFormatter{})
+	//log.SetFormatter(&log.JSONFormatter{})
 
 	// Output to stdout instead of the default stderr
 	// Can be any io.Writer, see below for File example
@@ -31,7 +31,7 @@ func main() {
 	log.WithFields(log.Fields{
 		"omg":    true,
 		"number": 100,
-	}).Fatal("The ice breaks!")
+	}).Warnln("The ice breaks!")
 
 	// A common pattern is to re-use fields between logging statements by re-using
 	// the logrus.Entry returned from WithFields()
@@ -40,6 +40,6 @@ func main() {
 		"other": "I also should be logged always",
 	})
 
-	contextLogger.Info("I'll be logged with common and other field")
-	contextLogger.Info("Me too")
+	contextLogger.Warn("I'll be logged with common and other field")
+	contextLogger.WithField("x", 1).Warn("Me too")
 }
