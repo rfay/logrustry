@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -17,64 +16,27 @@ Consider one logger for user output (what we *expect* them to see) and another f
 One could be called userout? The other errorout?
 */
 
-var logger = log.New()
+var UserOut = log.New()
+var UserOutFormatter = new(UserTextFormatter)
+
 
 func init() {
+	UserOut.Formatter = UserOutFormatter
+	UserOutFormatter.DisableTimestamp = true
+	UserOut.Level = log.DebugLevel
 
-	// Log as JSON instead of the default ASCII formatter.
-	//log.SetFormatter(&log.JSONFormatter{})
-
-	// Output to stdout instead of the default stderr
-	// Can be any io.Writer, see below for File example
-	log.SetOutput(os.Stdout)
-
-	// Only log the warning severity or above.
-	log.SetLevel(log.DebugLevel)
-
-	//x := logger.(*log.MyTextFormatter).DisableTimestamp
-	//x := log.MyTextFormatter(logger)
-	//x := logger.(*log.MyTextFormatter)
+	log.SetLevel(log.InfoLevel)
 }
 
 func main() {
-	log.Warn("Try this")
-	log.Print("This is just a print")
-	customFormatter := new(MyTextFormatter)
-	customFormatter.DisableTimestamp = true
-	customFormatter.isTerminal = false
 
-	log.Info("Hello Walrus before DisableTimestamp=true")
-	log.SetFormatter(customFormatter)
-	customFormatter.FullTimestamp = true
-	log.Info("Hello Walrus after FullTimestamp=true")
+	// UserOut has a custom formatter that doesn't add timestamp etc.
+	UserOut.Info("UserOut info")
+	UserOut.Print("UserOut print")
+	UserOut.Debug("UserOut debug should show")
 
-	log.WithFields(log.Fields{
-		"animal": "walrus",
-		"size":   10,
-	}).Info("A group of walrus emerges from the ocean")
+	// log behaves same as always; level is set in init() to InfoLevel
+	log.Debug("log.Debug() - should not show")
+	log.Info("log.Info() - should show with timestamp, and with extra data if no terminal")
 
-	logger.WithFields(log.Fields{
-		"whichlogger": "logger",
-		"size":        10,
-	}).Info("using logger")
-
-	log.WithFields(log.Fields{
-		"omg":    true,
-		"number": 122,
-	}).Warn("The group's number increased tremendously!")
-
-	log.WithFields(log.Fields{
-		"omg":    true,
-		"number": 100,
-	}).Warnln("The ice breaks!")
-
-	// A common pattern is to re-use fields between logging statements by re-using
-	// the logrus.Entry returned from WithFields()
-	contextLogger := log.WithFields(log.Fields{
-		"common": "this is a common field",
-		"other":  "I also should be logged always",
-	})
-
-	contextLogger.Warn("I'll be logged with common and other field")
-	contextLogger.WithField("x", 1).Warn("Me too")
 }

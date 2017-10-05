@@ -34,8 +34,8 @@ func init() {
 	baseTimestamp = time.Now()
 }
 
-// MyTextFormatter formats logs into text
-type MyTextFormatter struct {
+// UserTextFormatter formats logs into text
+type UserTextFormatter struct {
 	// Set to true to bypass checking for a TTY before outputting colors.
 	ForceColors bool
 
@@ -67,13 +67,13 @@ type MyTextFormatter struct {
 	sync.Once
 }
 
-func (f *MyTextFormatter) init(entry *log.Entry) {
+func (f *UserTextFormatter) init(entry *log.Entry) {
 	if entry.Logger != nil {
 		f.isTerminal = f.checkIfTerminal(entry.Logger.Out)
 	}
 }
 
-func (f *MyTextFormatter) checkIfTerminal(w io.Writer) bool {
+func (f *UserTextFormatter) checkIfTerminal(w io.Writer) bool {
 	switch v := w.(type) {
 	case *os.File:
 		return terminal.IsTerminal(int(v.Fd()))
@@ -83,7 +83,7 @@ func (f *MyTextFormatter) checkIfTerminal(w io.Writer) bool {
 }
 
 // Format renders a single log entry
-func (f *MyTextFormatter) Format(entry *log.Entry) ([]byte, error) {
+func (f *UserTextFormatter) Format(entry *log.Entry) ([]byte, error) {
 	var b *bytes.Buffer
 	keys := make([]string, 0, len(entry.Data))
 	for k := range entry.Data {
@@ -129,7 +129,7 @@ func (f *MyTextFormatter) Format(entry *log.Entry) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func (f *MyTextFormatter) printColored(b *bytes.Buffer, entry *log.Entry, keys []string, timestampFormat string) {
+func (f *UserTextFormatter) printColored(b *bytes.Buffer, entry *log.Entry, keys []string, timestampFormat string) {
 	var levelColor int
 	switch entry.Level {
 	case log.DebugLevel:
@@ -158,7 +158,7 @@ func (f *MyTextFormatter) printColored(b *bytes.Buffer, entry *log.Entry, keys [
 	}
 }
 
-func (f *MyTextFormatter) needsQuoting(text string) bool {
+func (f *UserTextFormatter) needsQuoting(text string) bool {
 	if f.QuoteEmptyFields && len(text) == 0 {
 		return true
 	}
@@ -173,7 +173,7 @@ func (f *MyTextFormatter) needsQuoting(text string) bool {
 	return false
 }
 
-func (f *MyTextFormatter) appendKeyValue(b *bytes.Buffer, key string, value interface{}) {
+func (f *UserTextFormatter) appendKeyValue(b *bytes.Buffer, key string, value interface{}) {
 	if b.Len() > 0 {
 		b.WriteByte(' ')
 	}
@@ -182,7 +182,7 @@ func (f *MyTextFormatter) appendKeyValue(b *bytes.Buffer, key string, value inte
 	f.appendValue(b, value)
 }
 
-func (f *MyTextFormatter) appendValue(b *bytes.Buffer, value interface{}) {
+func (f *UserTextFormatter) appendValue(b *bytes.Buffer, value interface{}) {
 	stringVal, ok := value.(string)
 	if !ok {
 		stringVal = fmt.Sprint(value)
